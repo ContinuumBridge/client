@@ -11,11 +11,11 @@ logger.info('CONTROLLER_API', CONTROLLER_API);
 CONTROLLER_SOCKET = "http://" + getenv('CB_NODE_CONTROLLER_ADDR') + "/";
 logger.info('CONTROLLER_SOCKET', CONTROLLER_SOCKET);
 
-BRIDGE_EMAIL = getenv('CB_BRIDGE_EMAIL', '28b45a59a875478ebcbdf327c18dbfb1@continuumbridge.com');
+CLIENT_EMAIL = getenv('CB_BRIDGE_EMAIL', '28b45a59a875478ebcbdf327c18dbfb1@continuumbridge.com');
 logger.info('BRIDGE_EMAIL', BRIDGE_EMAIL);
 
-BRIDGE_PASSWORD = getenv('CB_BRIDGE_PASSWORD', 'oX3ZGWS/yY1l+PaEFsBp11yixvK6b7O5UiK9M9TV8YBnjPXl3bDLw9eXQZvpmNdr');
+CLIENT_PASSWORD = getenv('CB_BRIDGE_PASSWORD', 'oX3ZGWS/yY1l+PaEFsBp11yixvK6b7O5UiK9M9TV8YBnjPXl3bDLw9eXQZvpmNdr');
 logger.info('BRIDGE_PASSWORD', BRIDGE_PASSWORD);
 
-BRIDGE_ROOT = path.normalize(__dirname + '/..');
-THIS_BRIDGE_ROOT = path.normalize(__dirname + '/../../thisbridge');
+CLIENT_ROOT = path.normalize(__dirname + '/..');
+//THIS_BRIDGE_ROOT = path.normalize(__dirname + '/../../thisbridge');
