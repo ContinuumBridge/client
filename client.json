@@ -1,7 +1,6 @@
 {
-  "author": "",
-  "name": "client",
-  "description": "Continuum Bridge Raspberry Pi development package",
-  "version": "0.0.0",
-  "homepage": "http://www.continuumbridge.com/",
+  "controller_api": "54.194.73.211:8000",
+  "controller_socket": "54.194.73.211:3500",
+  "email": "be63cce6@continuumbridge.com",
+  "password": "J9vY8DzAzEnTRtLQlzegbIR5IKTThh1kSggxHCsqMeK0IyM7TNv++JWZPQOm6u5H"
 }

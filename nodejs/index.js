@@ -1,46 +1,59 @@
 
-require('./env');
+require('./config');
 
-var BridgeConcentrator = require('./bridge/bridge_socket.js')
-    ,ControllerSocket = require('./controller/controller_socket.js')
-    ,controllerAuth = require('./controller/controller_auth.js')
+var Bacon = require('baconjs');
+
+var ClientSocket = require('./client/socket.js')
+    ,ControllerSocket = require('./controller/socket.js')
+    ,controllerAuth = require('./controller/auth.js')
     ,Heartbeat = require('./heartbeat.js')
+    ,Message = require('./message')
     ;
 
 var logger = require('./logger');
 
-/* Node concentrator for managing socket communication between Bridge Manager and the main server (Controller) */
 
-var bridgeConcentrator = new BridgeConcentrator(5000);
+/* Node concentrator for managing socket communication between Client and the main server (Controller) */
+
+var clientSocket = new ClientSocket(5000);
 
 var controllerSocket = new ControllerSocket();
 
-var heartbeat = new Heartbeat(controllerSocket, bridgeConcentrator);
+var heartbeat = new Heartbeat(controllerSocket, clientSocket);
 heartbeat.start();
 
 controllerSocket.fromController.onValue(function(message) {
 
-    // Take messages from the controller and relay them to the bridge
-    bridgeConcentrator.toBridge.push(message);
-    logger.info('Controller => Bridge: ', message)
+    // Take messages from the controller and relay them to the client
+    clientSocket.toClient.push(message);
+    logger.info('Controller => Client: ', message)
 });
 
-bridgeConcentrator.fromBridge.onValue(function(message) {
+clientSocket.fromClient.onValue(function(message) {
 
-    // Take messages from the bridge and relay them to the controller
+    // Take messages from the client and relay them to the controller
     controllerSocket.toController.push(message);
-    logger.info('Bridge => Controller: ', message);
+    logger.info('Client => Controller: ', message);
 });
+
+// Send a test message
+var testMessage = new Message({
+    destination: 'UID1',
+    source: 'CID22'
+});
+var testStream = Bacon.interval(5000, testMessage);
+controllerSocket.toController.plug(testStream);
 
 connectToController = function() {
 
-    controllerAuth(CONTROLLER_API, BRIDGE_EMAIL, BRIDGE_PASSWORD).then(function(sessionID) {
+    controllerAuth(CONTROLLER_API, CLIENT_EMAIL, CLIENT_PASSWORD).then(function(sessionID) {
 
-        logger.info('Authenticated to Bridge Controller');
+        logger.info('Authenticated to Client Controller');
+        logger.info('sessionID in auth is', sessionID);
 
         controllerSocket.connect(CONTROLLER_SOCKET, sessionID);
 
-        /* TODO {"msg":"aggregator_status", "data":"ok"} */
+        //TODO {"msg":"aggregator_status", "data":"ok"}
     }, function(error) {
 
         logger.error(error);
@@ -57,4 +70,3 @@ controllerSocket.on('giveUp', function() {
     logger.log('debug', 'calling connectToController after giveUp');
     connectToController();
 });
-

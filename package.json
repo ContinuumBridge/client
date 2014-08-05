@@ -10,13 +10,14 @@
   },
   "dependencies": {
     "baconjs": "~0.6.21",
+    "cookie": "^0.1.2",
+    "getenv": "~0.3.0",
+    "q": "~0.9.7",
+    "restler": "~2.0.1",
     "socket.io": "~0.9.15",
     "socket.io-client": "~0.9.16",
-    "restler": "~2.0.1",
-    "q": "~0.9.7",
-    "cookie": "~0.1.0",
-    "getenv": "~0.3.0",
-    "winston": "~0.7.2"
+    "underscore": "^1.6.0",
+    "winston": "^0.7.3"
   },
   "devDependencies": {},
   "optionalDependencies": {},

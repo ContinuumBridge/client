@@ -3,13 +3,13 @@ var Message = require('./message');
 
 
 
-var Heartbeat = function(controllerSocket, bridgeSocket) {
+var Heartbeat = function(controllerSocket, clientSocket) {
 
     /* Periodically sends a message to the bridge manager with connection status */
 
     var heartbeat = {};
     heartbeat.controllerSocket = controllerSocket;
-    heartbeat.bridgeSocket = bridgeSocket;
+    heartbeat.clientSocket = clientSocket;
 
     heartbeat.start = function() {
 
@@ -18,7 +18,7 @@ var Heartbeat = function(controllerSocket, bridgeSocket) {
         setInterval(function() {
 
             message.set('body',{connected: controllerSocket.connected});
-            bridgeSocket.toBridge.push(message);
+            clientSocket.toClient.push(message);
         }, 1000);
     }
     return heartbeat;
