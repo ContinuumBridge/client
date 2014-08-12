@@ -1,8 +1,8 @@
 
 //var SERVER_PORT = 3000;
 // Set up the socket client
-var io = require('socket.io-client')
-    ,Bacon = require('baconjs').Bacon
+var io = require('socket.io-client');
+var Bacon = require('baconjs').Bacon
     ,events = require('events');
     ;
 
@@ -103,6 +103,8 @@ function ControllerSocket(controllerURL, sessionID) {
         socketWrapper.controllerURL = controllerURL;
         var socketAddress = controllerURL + "?sessionID=" + sessionID;
         logger.info('sessionID is', sessionID);
+        logger.info('socketAddress is', socketAddress);
+        //var socket = socketWrapper.socket = io.connect(socketAddress, {
         var socket = socketWrapper.socket = io.connect(socketAddress, {
             //'max reconnection attempts': 10,
             'force new connection': true,
@@ -110,6 +112,8 @@ function ControllerSocket(controllerURL, sessionID) {
             'log level': 2,
             'reconnect': false
         });
+
+        logger.info('socket is', socket);
 
         // Proxy socket events to the controllerSocketWrapper
         socket.on('connect', function() {

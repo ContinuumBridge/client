@@ -4,7 +4,7 @@ var path = require('path')
     ,logger = require('./logger')
     ;
 
-var config = require('../client.json');
+var config = require('./client.json');
 //logger.log('debug', configJSON);
 //var config = JSON.parse(configJSON);
 

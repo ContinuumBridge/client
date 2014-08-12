@@ -68,5 +68,5 @@ connectToController();
 // Restart connection process on 'giveUp'
 controllerSocket.on('giveUp', function() {
     logger.log('debug', 'calling connectToController after giveUp');
-    connectToController();
+    setTimeout(connectToController, 8000);
 });

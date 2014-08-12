@@ -4,7 +4,7 @@ var winston = require('winston')
     ;
 
 // Define logsDir here so that we don't get circular dependencies loading ./env
-var logsDir = path.normalize(__dirname + '/../..');
+var logsDir = path.normalize(__dirname + '/logs');
 
 var logger = new (winston.Logger)({
   transports: [
