@@ -1,75 +1,95 @@
 
-require('./config');
+require('./lib/config');
 
-var Bacon = require('baconjs');
+var retry = require('retry')
+    ,util = require('util');
 
-var ClientSocket = require('./lib/client/socket.js')
-    ,ControllerSocket = require('./lib/controller/socket.js')
-    ,controllerAuth = require('./lib/controller/auth.js')
-    ,Heartbeat = require('./lib/heartbeat.js')
+var CBSocketWrapper = require('./lib/cbSocket/socket.js')
+    ,controllerAuth = require('./lib/cbSocket/auth.js')
     ,Message = require('./lib/message')
     ;
 
 var logger = require('./lib/logger');
 
-
 /* Node concentrator for managing socket communication between Client and the main server (Controller) */
 
 var Client = function(email, password) {
 
-    var clientSocket = new ClientSocket(5000);
+    var self = this;
 
-    var controllerSocket = new ControllerSocket();
+    this.config = {
+        email: email,
+        password: password,
+        cbSocket: CONTROLLER_SOCKET,
+        cbAPI: CONTROLLER_API
+    }
 
-    var heartbeat = new Heartbeat(controllerSocket, clientSocket);
-    heartbeat.start();
+    this.cbSocketWrapper = new CBSocketWrapper(this.config);
 
-    controllerSocket.fromController.onValue(function(message) {
+    this.cbSocketWrapper.on('message', function(message) {
 
-        // Take messages from the controller and relay them to the client
-        clientSocket.toClient.push(message);
-        logger.info('Controller => Client: ', message)
+        self.emit('message', message);
+
+        var source = message.get('source');
+        self.emit(source, message);
+        logger.info('CB => Client: ', message)
     });
 
-    clientSocket.fromClient.onValue(function(message) {
-
-        // Take messages from the client and relay them to the controller
-        controllerSocket.toController.push(message);
-        logger.info('Client => Controller: ', message);
+    // Restart connection process on 'giveUp'
+    this.cbSocketWrapper.on('fail', function() {
+        self.cbSocketWrapper.giveUp();
+        self.connect();
     });
+
+    this.faultTolerantAuth = retry.operation()
 
     // Send a test message
     var testMessage = new Message({
         destination: 'UID1',
         source: 'CID22'
     });
-    var testStream = Bacon.interval(5000, testMessage);
-    controllerSocket.toController.plug(testStream);
 
-    connectToController = function() {
+    this.connect();
+}
 
-        controllerAuth(CONTROLLER_API, CLIENT_EMAIL, CLIENT_PASSWORD).then(function(sessionID) {
+var EventEmitter = require('events').EventEmitter;
+util.inherits(Client, EventEmitter);
+
+Client.prototype.connect = function() {
+
+    var self = this;
+    var config = this.config;
+
+    this.faultTolerantAuth.attempt(function(currentAttempt) {
+
+        controllerAuth(config.cbAPI, config.email, config.password).then(function(sessionID) {
 
             logger.info('Authenticated to Client Controller');
-            logger.info('sessionID in auth is', sessionID);
+            logger.log('debug', 'sessionID in auth is', sessionID);
 
-            controllerSocket.connect(CONTROLLER_SOCKET, sessionID);
+            logger.log('debug', 'sessionID in auth is', sessionID);
+            self.cbSocketWrapper.connect(sessionID);
 
             //TODO {"msg":"aggregator_status", "data":"ok"}
         }, function(error) {
 
             logger.error(error);
+            self.faultTolerantAuth.retry(error);
             logger.info('Retrying..');
-            // Authorise again after 8 seconds
-            setTimeout(connectToController, 8000);
-        });
-    };
-
-    connectToController();
-
-    // Restart connection process on 'giveUp'
-    controllerSocket.on('giveUp', function() {
-        logger.log('debug', 'calling connectToController after giveUp');
-        setTimeout(connectToController, 8000);
+            // Authorise again after backoff
+        })
     });
 }
+
+Client.prototype.publish = function(message) {
+
+    var jsonMessage;
+    if (message instanceof Message) {
+        jsonMessage = message.toJSON();
+    } else {
+        jsonMessage = message;
+    }
+    this.cbSocketWrapper.socket.emit('message', jsonMessage);
+}
+
+var client = new Client('be63cce6@continuumbridge.com', 'J9vY8DzAzEnTRtLQlzegbIR5IKTThh1kSggxHCsqMeK0IyM7TNv++JWZPQOm6u5H');
