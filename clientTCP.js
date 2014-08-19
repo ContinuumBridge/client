@@ -4,13 +4,11 @@ var Client = require('./client')
     ,Heartbeat = require('./lib/heartbeat')
     ;
 
-var args = process.argv.slice(2);
+var ClientTCP = function(options) {
 
-var ClientTCP = function(email, password) {
+    var client = new Client(options.key);
 
-    var client = new Client(email, password);
-
-    var tcpSocket = new TCPSocket(5000);
+    var tcpSocket = new TCPSocket(options.port);
 
     tcpSocket.on('message', function(message) {
 
@@ -19,6 +17,12 @@ var ClientTCP = function(email, password) {
         logger.info('Client => Controller: ', message);
     });
 
+    // Set heartbeat on the local tcp connection
+    setInterval(function() {
+
+        message.set('body',{connected: controllerSocket.connected});
+        clientSocket.toClient.push(message);
+    }, 1000);
     var heartbeat = new Heartbeat(controllerSocket, clientSocket);
     heartbeat.start();
 }

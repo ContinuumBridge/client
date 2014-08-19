@@ -13,16 +13,14 @@ var logger = require('./lib/logger');
 
 /* Node concentrator for managing socket communication between Client and the main server (Controller) */
 
-var Client = function(email, password) {
+var Client = function(options) {
 
     var self = this;
 
-    this.config = {
-        email: email,
-        password: password,
+    this.config = _.defaults(options, {
         cbSocket: CONTROLLER_SOCKET,
         cbAPI: CONTROLLER_API
-    }
+    });
 
     this.cbSocketWrapper = new CBSocketWrapper(this.config);
 
@@ -42,12 +40,6 @@ var Client = function(email, password) {
     });
 
     this.faultTolerantAuth = retry.operation()
-
-    // Send a test message
-    var testMessage = new Message({
-        destination: 'UID1',
-        source: 'CID22'
-    });
 
     this.connect();
 }
@@ -70,7 +62,6 @@ Client.prototype.connect = function() {
             logger.log('debug', 'sessionID in auth is', sessionID);
             self.cbSocketWrapper.connect(sessionID);
 
-            //TODO {"msg":"aggregator_status", "data":"ok"}
         }, function(error) {
 
             logger.error(error);
