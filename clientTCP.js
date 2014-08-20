@@ -21,7 +21,6 @@ var ClientTCP = function(options) {
     setInterval(function() {
 
         message.set('body',{connected: controllerSocket.connected});
-        clientSocket.toClient.push(message);
     }, 1000);
     var heartbeat = new Heartbeat(controllerSocket, clientSocket);
     heartbeat.start();
