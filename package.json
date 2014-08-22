@@ -1,8 +1,8 @@
 {
-  "author": "",
+  "author": "Mark Claydon",
   "name": "continuumbridge",
   "description": "Continuum Bridge Raspberry Pi development package",
-  "version": "0.0.0",
+  "version": "0.0.3",
   "homepage": "http://www.continuumbridge.com/",
   "repository": {
     "type": "git",
