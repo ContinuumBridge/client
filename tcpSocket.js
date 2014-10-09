@@ -25,7 +25,7 @@ function TCPSocket(port) {
         socket.on('data', function(jsonMessage) {
 
             // There may be multiple messages in each chunk of TCP data.
-            var messageArray = JSON.parse('[' + jsonMessage.replace('}{', '},{') + ']');
+            var messageArray = JSON.parse('[' + jsonMessage.replace('}\r\n{', '},{') + ']');
 
             _.each(messageArray, function(message) {
                 console.log('Received message', message);
