@@ -3,9 +3,18 @@ CB = require('./index');
 logger = CB.logger;
 
 var client = new CB.Client({
-    key: '677182590NDhU2Muu4q+r1kvUwJLvzewv50Wg+26ghkIZwyRYQgOSXEbfSmlB2B8'
+    key: '371ee735PRteU1RnpDrvj8GKFKVtykaN8Mo0Xd9uzKBaBy75lta60tKZXq9HszoS'
 });
 
+var repl = require('repl');
+
+var replServer = repl.start({
+    prompt: "continuum-bridge > ",
+});
+
+replServer.context.client = client;
+
+/*
 var TCPSocket = require('./tcpSocket');
 
 var tcpSocket = new TCPSocket(5000);
@@ -37,3 +46,4 @@ setInterval(function() {
     tcpSocket.publish(message);
 
 }, 1000);
+*/
